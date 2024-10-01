@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+import { getConfig } from "@lib/utils/config";
 import "@ui/control-panel/assets/globals.css";
 
-const defaultTitle = "Control Panel";
+import type { Metadata } from "next";
+
+const defaultTitle = getConfig<string>("controlPanel.title") ?? "";
 
 export const metadata: Metadata = {
   title: {
@@ -9,7 +11,7 @@ export const metadata: Metadata = {
     default: defaultTitle,
     absolute: defaultTitle,
   },
-  description: "Práctica de Next.js - Universae FCT Olyverse",
+  description: "Sistema de gestión de contenido",
 };
 
 export default function Layout({

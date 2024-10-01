@@ -1,6 +1,7 @@
+import { getConfig } from "@lib/utils/config";
 import type { Metadata } from "next";
 
-const defaultTitle = "Universae FCT NextCMS";
+const defaultTitle = getConfig<string>("front.title") ?? "";
 
 export const metadata: Metadata = {
   title: {
