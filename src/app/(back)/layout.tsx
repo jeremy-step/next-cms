@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "@/ui/assets/globals.css";
+import "@ui/control-panel/assets/globals.css";
 
 const defaultTitle = "Control Panel";
 

@@ -1,5 +1,3 @@
-import "@/ui/assets/globals.css";
-
 export default function RootLayout({
   children,
 }: Readonly<{

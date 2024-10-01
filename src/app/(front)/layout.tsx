@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import "@/ui/assets/globals.css";
 
 const defaultTitle = "Universae FCT NextCMS";
 
