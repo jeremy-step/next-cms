@@ -6,9 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:generate": "dotenv -e .env.local -- pnpx prisma generate",
+    "prisma:db:push": "dotenv -e .env.local -- pnpx prisma db push",
+    "prisma:db:pull": "dotenv -e .env.local -- pnpx prisma db pull",
+    "prisma:migrate:dev": "dotenv -e .env.local -- pnpx prisma migrate dev",
+    "prisma:migrate:reset": "dotenv -e .env.local -- pnpx prisma migrate reset",
+    "prisma:migrate:deploy": "dotenv -e .env.local -- pnpx prisma migrate deploy",
+    "prisma:migrate:status": "dotenv -e .env.local -- pnpx prisma migrate status"
   },
   "dependencies": {
+    "@prisma/client": "5.20.0",
     "next": "14.2.13",
     "react": "^18",
     "react-dom": "^18"
@@ -23,5 +31,8 @@
     "prisma": "^5.20.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "prisma": {
+    "schema": "./src/lib/prisma/schema.prisma"
   }
 }
