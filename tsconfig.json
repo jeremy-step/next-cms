@@ -20,7 +20,8 @@
     "paths": {
       "@lib/*": ["./src/lib/*"],
       "@ui/control-panel/*": ["./src/ui/ControlPanel/*"],
-      "@ui/front/*": ["./src/ui/Front/*"]
+      "@ui/front/*": ["./src/ui/Front/*"],
+      "@/*": ["./*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
