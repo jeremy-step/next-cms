@@ -1,15 +1,26 @@
 ## Getting Started
 
+Install dependencies
+
+```bash
+pnpm i
+```
+
+Copy the `.env.local.example` file and rename it to `.env.local`
+
+Change the prisma database url.
+
+Setup database:
+
+```bash
+pnpm prisma:generate
+pnpm prisma:db:push
+```
+
 Run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
