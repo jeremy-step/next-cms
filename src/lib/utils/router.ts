@@ -1,25 +1,25 @@
 import { getConfig } from "./config";
 
-enum RouterNameControlPanelPrefixes {
+enum RouterNameModuleControlPanel {
   cp = "cp",
   controlpanel = "controlpanel",
   controlPanel = "controlPanel",
   "control-panel" = "control-panel",
 }
 
-enum RouterNameFrontPrefixes {
+enum RouterNameModuleFront {
   front = "front",
 }
-
-type RouteData = {
-  path: `/${string}`;
-  prefix?: string;
-};
 
 type RouterName<
   NamePrefix extends string,
   Name extends string
 > = `${NamePrefix}.${Name}`;
+
+type RouteData = {
+  path: `/${string}`;
+  prefix?: string;
+};
 
 export type RouteConfig = {
   [key: string]: RouteData;
@@ -40,9 +40,11 @@ export type RouterConfig = {
 
 // Route name parameter type
 type NameParameter = RouterName<
-  `${RouterNameControlPanelPrefixes}` | `${RouterNameFrontPrefixes}`,
+  `${RouterNameModuleControlPanel}` | `${RouterNameModuleFront}`,
   string
 >;
+
+type ParamsParameter = { [key: string]: string | number | undefined };
 
 const routerConfig = getConfig<RouterConfig, RouterConfig>("app.router");
 
@@ -81,11 +83,11 @@ const catchAllSegmentRegex = /^\[(?:\.{3})[^\[\]]+?\]$/;
 
 const getRouterModule = (name: string) => {
   const routerModule = name as
-    | `${RouterNameControlPanelPrefixes}`
-    | `${RouterNameFrontPrefixes}`;
+    | `${RouterNameModuleControlPanel}`
+    | `${RouterNameModuleFront}`;
 
-  return RouterNameControlPanelPrefixes[
-    routerModule as keyof typeof RouterNameControlPanelPrefixes
+  return RouterNameModuleControlPanel[
+    routerModule as keyof typeof RouterNameModuleControlPanel
   ] !== undefined
     ? "controlPanel"
     : "front";
@@ -113,7 +115,7 @@ const mapParameters = (
   name: NameParameter,
   path: string,
   dynamicSegments: RegExpMatchArray | null,
-  params?: { [key: string]: string | number | undefined }
+  params?: ParamsParameter
 ) => {
   let segmentValid = true;
 
@@ -172,10 +174,7 @@ const mapParameters = (
   return path;
 };
 
-export const getLink = (
-  name: NameParameter,
-  params?: { [key: string]: string | number | undefined }
-) => {
+export const getLink = (name: NameParameter, params?: ParamsParameter) => {
   const _name = name.split(".");
   const routerModule = getRouterModule(_name[0]);
   const route = routerConfig[routerModule].routes[_name[1]];
@@ -214,13 +213,13 @@ export const getLink = (
 
 // Generate permalink
 const permalinkPath = getConfig<string>("app.permalinkPath") as RouterName<
-  `${RouterNameFrontPrefixes}`,
+  `${RouterNameModuleFront}`,
   string
 >;
 
 export const getPermalink = (
   permalink: string | number,
-  params?: { [key: string]: string | number | undefined }
+  params?: ParamsParameter
 ) => {
   return getLink(permalinkPath, { ...params, permalink: permalink });
 };
