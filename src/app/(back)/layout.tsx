@@ -1,5 +1,4 @@
 import { getConfig } from "@lib/utils/config";
-import { getLink, getPermalink } from "@lib/utils/router";
 import "@ui/control-panel/assets/globals.css";
 
 import type { Metadata } from "next";
@@ -22,12 +21,9 @@ export default function Layout({
 }>) {
   return (
     <div>
-      <aside>
-        {getLink("front.page", { permalink: "test", foo: "bar" })} |{" "}
-        {getPermalink("new/perma/link", { foo2: "bar2" })}
-      </aside>
+      <aside></aside>
 
-      <header>{getLink("cp.pages")}</header>
+      <header></header>
 
       <main>{children}</main>
 
