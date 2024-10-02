@@ -16,21 +16,20 @@ const websiteConfig: WebsiteConfig = {
   },
 
   app: {
-    permalinkPath: "front.page",
+    permalinkPath: "front.page/index",
 
     router: {
       controlPanel: {
         prefix: "/control-panel",
         routes: {
-          dashboard: { path: "/dashboard" },
-          pages: { path: "/pages", prefix: "dashboard" },
+          "dashboard/index": { path: "/dashboard" },
         },
       },
 
       front: {
         prefix: "/",
         routes: {
-          page: {
+          "page/index": {
             path: "/[[...permalink]]",
           },
         },
