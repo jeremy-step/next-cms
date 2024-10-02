@@ -37,6 +37,39 @@ export type RouterConfig = {
 
 const routerConfig = getConfig<RouterConfig, RouterConfig>("app.router");
 
+const segmentFormatRegex = new RegExp(
+  [
+    "(?!^\\[[^\\[\\]]+?\\]{2}|\\[{2}[^\\[\\]]+?\\]$)",
+    // Each side of the segment must have the same number of brackets
+    // [segment] = valid
+    // [[segment] = invalid
+    // [segment]] = invalid
+    // [[...segment]] = valid
+
+    "(?!^\\[{1,2}(\\.{1,2}[^.]|\\.{4,})[^\\[\\]]+?\\]{1,2}|\\[{1,2}[^\\[\\]]+?\\.\\]{1,2}$)",
+    // Segment names can't start and end with dots, except for exactly 3 dots at the beggining for catch all segments
+    // [segment] = true
+    // [...segment] = true
+    // [[...segment]] = true
+    // [.segment] = false
+    // [segment.] = false
+    // [.segment.] = false
+    // [..segment] = false
+    // [....segment] = false
+    // [[....segment]] = false
+
+    "^(?:\\[{1,2}\\.{3}|\\[)[^\\[\\]]+?\\]{1,2}$",
+    // Segment must have one of the following formats:
+    // [segment] for normal required segment
+    // [...segment] for catch all required segment
+    // [[...segment]] for catch all optional segment
+  ].join("")
+);
+
+const catchAllOptionalSegmentRegex = /^\[{2}(?:\.{3})[^\[\]]+?\]{2}$/;
+
+const catchAllSegmentRegex = /^\[(?:\.{3})[^\[\]]+?\]$/;
+
 export const getLink = (
   name: RouterName<
     `${RouterNameControlPanelPrefixes}` | `${RouterNameFrontPrefixes}`,
@@ -68,12 +101,6 @@ export const getLink = (
   const dynamicSegments = route.path.match(/\[+.+?\]+/g);
 
   let segmentValid = true;
-
-  const segmentFormatRegex =
-    /(?!^\[[^\[\]]+?\]{2}|\[{2}[^\[\]]+?\]$)^(?:\[{1,2}(?:\.{3})|\[)(?!\.|[^\[\]]+?\.)[^\[\]]+?\]{1,2}$/;
-
-  const catchAllOptionalSegmentRegex = /^\[{2}(?:\.{3})[^\[\]]+?\]{2}$/;
-  const catchAllSegmentRegex = /^\[(?:\.{3})[^\[\]]+?\]$/;
 
   dynamicSegments?.forEach((segment) => {
     segmentValid = segmentFormatRegex.test(segment);
