@@ -1,4 +1,15 @@
 import websiteConfig from "@/website.config";
+import { RouterConfig } from "./router";
+
+export type WebsiteConfig = {
+  controlPanel: { [key: string]: unknown };
+  front: { [key: string]: unknown };
+  app: {
+    [key: string]: unknown;
+    permalinkPath: string;
+    router: RouterConfig;
+  };
+};
 
 export function getConfig<T, B = null>(
   path?: string,

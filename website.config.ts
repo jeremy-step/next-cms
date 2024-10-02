@@ -1,4 +1,6 @@
-const websiteConfig = {
+import { WebsiteConfig } from "@lib/utils/config";
+
+const websiteConfig: WebsiteConfig = {
   controlPanel: {
     title: "Control Panel",
     meta: {
@@ -13,7 +15,28 @@ const websiteConfig = {
     },
   },
 
-  app: {},
+  app: {
+    permalinkPath: "front.page",
+
+    router: {
+      controlPanel: {
+        prefix: "/control-panel",
+        routes: {
+          dashboard: { path: "/dashboard" },
+          pages: { path: "/pages", prefix: "dashboard" },
+        },
+      },
+
+      front: {
+        prefix: "/",
+        routes: {
+          page: {
+            path: "/[[...permalink]]",
+          },
+        },
+      },
+    },
+  },
 };
 
 export default websiteConfig;
