@@ -11,29 +11,38 @@ enum RouterNameFrontPrefixes {
   front = "front",
 }
 
+type RouteData = {
+  path: `/${string}`;
+  prefix?: string;
+};
+
 type RouterName<
   NamePrefix extends string,
   Name extends string
 > = `${NamePrefix}.${Name}`;
 
 export type RouteConfig = {
-  [key: string]: {
-    path: `/${string}`;
-    prefix?: string;
-  };
+  [key: string]: RouteData;
+};
+
+type RouterModuleData = {
+  prefix: `/${string}`;
+  routes: RouteConfig;
 };
 
 export type RouterConfig = {
-  controlPanel: {
-    prefix: `/${string}`;
-    routes: RouteConfig;
-  };
+  controlPanel: RouterModuleData;
 
-  front: {
-    prefix: `/${string}`;
-    routes: RouteConfig;
-  };
+  front: RouterModuleData;
 };
+
+// Generate link
+
+// Route name parameter type
+type NameParameter = RouterName<
+  `${RouterNameControlPanelPrefixes}` | `${RouterNameFrontPrefixes}`,
+  string
+>;
 
 const routerConfig = getConfig<RouterConfig, RouterConfig>("app.router");
 
@@ -48,15 +57,15 @@ const segmentFormatRegex = new RegExp(
 
     "(?!^\\[{1,2}(\\.{1,2}[^.]|\\.{4,})[^\\[\\]]+?\\]{1,2}|\\[{1,2}[^\\[\\]]+?\\.\\]{1,2}$)",
     // Segment names can't start and end with dots, except for exactly 3 dots at the beggining for catch all segments
-    // [segment] = true
-    // [...segment] = true
-    // [[...segment]] = true
-    // [.segment] = false
-    // [segment.] = false
-    // [.segment.] = false
-    // [..segment] = false
-    // [....segment] = false
-    // [[....segment]] = false
+    // [segment] = valid
+    // [...segment] = valid
+    // [[...segment]] = valid
+    // [.segment] = invalid
+    // [segment.] = invalid
+    // [.segment.] = invalid
+    // [..segment] = invalid
+    // [....segment] = invalid
+    // [[....segment]] = invalid
 
     "^(?:\\[{1,2}\\.{3}|\\[)[^\\[\\]]+?\\]{1,2}$",
     // Segment must have one of the following formats:
@@ -70,36 +79,42 @@ const catchAllOptionalSegmentRegex = /^\[{2}(?:\.{3})[^\[\]]+?\]{2}$/;
 
 const catchAllSegmentRegex = /^\[(?:\.{3})[^\[\]]+?\]$/;
 
-export const getLink = (
-  name: RouterName<
-    `${RouterNameControlPanelPrefixes}` | `${RouterNameFrontPrefixes}`,
-    string
-  >,
-  params?: { [key: string]: string | number | undefined }
-) => {
-  const _name = name.split(".");
-
-  const _prefix = _name[0] as
+const getRouterModule = (name: string) => {
+  const routerModule = name as
     | `${RouterNameControlPanelPrefixes}`
     | `${RouterNameFrontPrefixes}`;
 
-  const prefix =
-    RouterNameControlPanelPrefixes[
-      _prefix as keyof typeof RouterNameControlPanelPrefixes
-    ] !== undefined
-      ? "controlPanel"
-      : "front";
+  return RouterNameControlPanelPrefixes[
+    routerModule as keyof typeof RouterNameControlPanelPrefixes
+  ] !== undefined
+    ? "controlPanel"
+    : "front";
+};
 
-  const route = routerConfig[prefix].routes[_name[1]];
-
-  if (route === undefined) {
-    throw new Error(`Route ( ${name} ) does not exist!`);
+// Add path prefixes
+const addPrefixes = (
+  link: string,
+  route: RouteData,
+  routes: RouteConfig
+): string => {
+  if (route.prefix === undefined) {
+    return link;
   }
 
-  let path = route.path as string;
+  link = routes[route.prefix].path + link;
 
-  const dynamicSegments = route.path.match(/\[+.+?\]+/g);
+  return routes[route.prefix].prefix !== undefined
+    ? addPrefixes(link, routes[route.prefix], routes)
+    : link;
+};
 
+// Map parameters to path segments
+const mapParameters = (
+  name: NameParameter,
+  path: string,
+  dynamicSegments: RegExpMatchArray | null,
+  params?: { [key: string]: string | number | undefined }
+) => {
   let segmentValid = true;
 
   dynamicSegments?.forEach((segment) => {
@@ -154,13 +169,33 @@ export const getLink = (
     }
   });
 
-  path = `/${(
-    routerConfig[prefix].prefix +
-    (route.prefix !== undefined
-      ? routerConfig[prefix].routes[route.prefix]?.path ?? ""
-      : "") +
-    path
-  ).replace(/^\/+|\/+$/g, "")}`;
+  return path;
+};
+
+export const getLink = (
+  name: NameParameter,
+  params?: { [key: string]: string | number | undefined }
+) => {
+  const _name = name.split(".");
+  const routerModule = getRouterModule(_name[0]);
+  const route = routerConfig[routerModule].routes[_name[1]];
+
+  if (route === undefined) {
+    throw new Error(`Route ( ${name} ) does not exist!`);
+  }
+
+  const dynamicSegments = route.path.match(/\[+.+?\]+/g);
+
+  let link = route.path as string;
+
+  link = addPrefixes(link, route, routerConfig[routerModule].routes);
+
+  link = mapParameters(name, link, dynamicSegments, params);
+
+  link = `/${(routerConfig[routerModule].prefix + link).replace(
+    /^\/+|\/+$/g,
+    ""
+  )}`;
 
   if (params !== undefined) {
     const remainingParams = Object.entries(params).filter((value) => {
@@ -170,15 +205,16 @@ export const getLink = (
     if (remainingParams.length >= 1) {
       const paramsQuery = new URLSearchParams(remainingParams as string[][]);
 
-      path += `?${paramsQuery}`;
+      link += `?${paramsQuery}`;
     }
   }
 
-  return path;
+  return link;
 };
 
+// Generate permalink
 const permalinkPath = getConfig<string>("app.permalinkPath") as RouterName<
-  `${RouterNameControlPanelPrefixes}` | `${RouterNameFrontPrefixes}`,
+  `${RouterNameFrontPrefixes}`,
   string
 >;
 
