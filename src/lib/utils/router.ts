@@ -18,7 +18,8 @@ type RouterName<
 
 type RouteData = {
   path: `/${string}`;
-  prefix?: string;
+  parent?: string;
+  title?: string;
 };
 
 export type RouteConfig = {
@@ -39,12 +40,12 @@ export type RouterConfig = {
 // Generate link
 
 // Route name parameter type
-type NameParameter = RouterName<
+export type NameParameter = RouterName<
   `${RouterNameModuleControlPanel}` | `${RouterNameModuleFront}`,
   string
 >;
 
-type ParamsParameter = { [key: string]: string | number | undefined };
+export type ParamsParameter = { [key: string]: string | number | undefined };
 
 const routerConfig = getConfig<RouterConfig, RouterConfig>("app.router");
 
@@ -99,14 +100,14 @@ const addPrefixes = (
   route: RouteData,
   routes: RouteConfig
 ): string => {
-  if (route.prefix === undefined) {
+  if (route.parent === undefined) {
     return link;
   }
 
-  link = routes[route.prefix].path + link;
+  link = routes[route.parent].path + link;
 
-  return routes[route.prefix].prefix !== undefined
-    ? addPrefixes(link, routes[route.prefix], routes)
+  return routes[route.parent].parent !== undefined
+    ? addPrefixes(link, routes[route.parent], routes)
     : link;
 };
 
@@ -174,10 +175,60 @@ const mapParameters = (
   return path;
 };
 
+const getPath = (routerModule: RouterModuleData, name: NameParameter) => {
+  const _name = name.split(".");
+  const route = routerModule.routes[_name[1]];
+
+  if (route === undefined) {
+    throw new Error(`Route ( ${name} ) does not exist!`);
+  }
+
+  let link = route.path as string;
+
+  link = addPrefixes(link, route, routerModule.routes);
+
+  link = `/${(routerModule.prefix + link).replace(/^\/+|\/+$/g, "")}`;
+
+  return link;
+};
+
+type PathStructure = {
+  [key: string]: { parent?: string; path: `/${string}`; title?: string };
+};
+type PathsStructure = { controlPanel: PathStructure; front: PathStructure };
+
+const getPaths = (): PathsStructure => {
+  const paths: PathsStructure = {
+    controlPanel: {},
+    front: {},
+  };
+
+  Object.entries(routerConfig).map((config) => {
+    const routeModule = getRouterModule(config[0]);
+
+    Object.entries(config[1].routes).map((route) => {
+      const link = getPath(
+        config[1],
+        `${routeModule}.${route[0]}`
+      ) as `/${string}`;
+
+      paths[routeModule][route[0]] = {
+        parent: route[1].parent,
+        path: link,
+        title: route[1].title,
+      };
+    });
+  });
+
+  return paths;
+};
+
+export const paths = getPaths();
+
 export const getLink = (name: NameParameter, params?: ParamsParameter) => {
   const _name = name.split(".");
   const routerModule = getRouterModule(_name[0]);
-  const route = routerConfig[routerModule].routes[_name[1]];
+  const route = paths[routerModule][_name[1]];
 
   if (route === undefined) {
     throw new Error(`Route ( ${name} ) does not exist!`);
@@ -187,14 +238,7 @@ export const getLink = (name: NameParameter, params?: ParamsParameter) => {
 
   let link = route.path as string;
 
-  link = addPrefixes(link, route, routerConfig[routerModule].routes);
-
   link = mapParameters(name, link, dynamicSegments, params);
-
-  link = `/${(routerConfig[routerModule].prefix + link).replace(
-    /^\/+|\/+$/g,
-    ""
-  )}`;
 
   if (params !== undefined) {
     const remainingParams = Object.entries(params).filter((value) => {
@@ -208,7 +252,18 @@ export const getLink = (name: NameParameter, params?: ParamsParameter) => {
     }
   }
 
-  return link;
+  return !link.startsWith("/") ? `/${link}` : link;
+};
+
+export const getLinkWithMeta = (
+  name: NameParameter,
+  params?: ParamsParameter
+) => {
+  const _name = name.split(".");
+  const routerModule = getRouterModule(_name[0]);
+  const route = paths[routerModule][_name[1]];
+
+  return { link: getLink(name, params), name: name, title: route.title };
 };
 
 // Generate permalink
@@ -222,4 +277,35 @@ export const getPermalink = (
   params?: ParamsParameter
 ) => {
   return getLink(permalinkPath, { ...params, permalink: permalink });
+};
+
+export const getBreadCrumbs = (
+  name: NameParameter,
+  parent: NameParameter | undefined,
+  params?: ParamsParameter,
+  breadCrumbs: { title: string; link: string }[] = []
+): { title: string; link: string }[] => {
+  const link = getLinkWithMeta(name, { ...params });
+
+  breadCrumbs.unshift({
+    title: link.title ?? link.link.split("?")[0],
+    link: link.link.split("?")[0],
+  });
+
+  if (parent === undefined) {
+    return breadCrumbs;
+  }
+
+  const _parent = parent.split(".");
+  const routerModule = getRouterModule(_parent[0]);
+  const route = paths[routerModule][_parent[1]];
+
+  return getBreadCrumbs(
+    parent,
+    route.parent !== undefined
+      ? (`${routerModule}.${route.parent}` as NameParameter)
+      : undefined,
+    params,
+    breadCrumbs
+  );
 };
