@@ -16,10 +16,20 @@ type RouterName<
   Name extends string
 > = `${NamePrefix}.${Name}`;
 
+export type NameParameter = RouterName<
+  `${RouterNameModuleControlPanel}` | `${RouterNameModuleFront}`,
+  string
+>;
+
+export type ParamsParameter = { [key: string]: string | number | undefined };
+
 type RouteData = {
   path: `/${string}`;
   parent?: string;
   title?: string;
+  primaryNav?: boolean;
+  primaryNavIcon?: React.ElementType;
+  defaultParams?: ParamsParameter;
 };
 
 export type RouteConfig = {
@@ -40,13 +50,6 @@ export type RouterConfig = {
 // Generate link
 
 // Route name parameter type
-export type NameParameter = RouterName<
-  `${RouterNameModuleControlPanel}` | `${RouterNameModuleFront}`,
-  string
->;
-
-export type ParamsParameter = { [key: string]: string | number | undefined };
-
 const routerConfig = getConfig<RouterConfig, RouterConfig>("app.router");
 
 const segmentFormatRegex = new RegExp(
@@ -193,7 +196,7 @@ const getPath = (routerModule: RouterModuleData, name: NameParameter) => {
 };
 
 type PathStructure = {
-  [key: string]: { parent?: string; path: `/${string}`; title?: string };
+  [key: string]: RouteData;
 };
 type PathsStructure = { controlPanel: PathStructure; front: PathStructure };
 
@@ -207,15 +210,14 @@ const getPaths = (): PathsStructure => {
     const routeModule = getRouterModule(config[0]);
 
     Object.entries(config[1].routes).map((route) => {
-      const link = getPath(
+      const path = getPath(
         config[1],
         `${routeModule}.${route[0]}`
       ) as `/${string}`;
 
       paths[routeModule][route[0]] = {
-        parent: route[1].parent,
-        path: link,
-        title: route[1].title,
+        ...route[1],
+        path: path,
       };
     });
   });
@@ -263,7 +265,7 @@ export const getLinkWithMeta = (
   const routerModule = getRouterModule(_name[0]);
   const route = paths[routerModule][_name[1]];
 
-  return { link: getLink(name, params), name: name, title: route.title };
+  return { link: getLink(name, params), name: name, ...route };
 };
 
 // Generate permalink
