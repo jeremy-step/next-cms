@@ -1,3 +1,8 @@
+import {
+  BookOpenIcon,
+  CogIcon,
+  PresentationChartBarIcon,
+} from "@heroicons/react/24/outline";
 import { WebsiteConfig } from "@lib/utils/config";
 
 const websiteConfig: WebsiteConfig = {
@@ -22,8 +27,23 @@ const websiteConfig: WebsiteConfig = {
       controlPanel: {
         prefix: "/control-panel",
         routes: {
-          "dashboard/index": { path: "/dashboard", title: "Dashboard" },
-          "pages/index": { path: "/pages", title: "Pages" },
+          "dashboard/index": {
+            path: "/dashboard",
+            title: "Dashboard",
+            primaryNav: true,
+            primaryNavIcon: PresentationChartBarIcon,
+          },
+          "settings/index": {
+            path: "/settings",
+            title: "Settings",
+            primaryNavIcon: CogIcon,
+          },
+          "pages/index": {
+            path: "/pages",
+            title: "Pages",
+            primaryNav: true,
+            primaryNavIcon: BookOpenIcon,
+          },
           "pages/edit": {
             path: "/[pageId]",
             parent: "pages/index",
