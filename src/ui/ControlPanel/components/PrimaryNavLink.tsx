@@ -13,7 +13,6 @@ export default function PrimaryNavLink({
   href,
   title,
   Icon,
-  className,
   ...rest
 }: PanelProps) {
   const pathname = usePathname();
