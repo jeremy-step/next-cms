@@ -47,7 +47,11 @@ export default function BreadCrumbs({
   });
 
   return (
-    <ul {...rest} className={clsx("flex gap-1 text-[.9rem]", className)}>
+    <ul
+      {...rest}
+      className={clsx("flex gap-1 text-[.9rem]", className)}
+      aria-label="Current Navigation"
+    >
       <li className="flex items-center gap-1">
         <Link href={getLink("cp.dashboard/index")} title="Root">
           Root
@@ -71,6 +75,7 @@ export default function BreadCrumbs({
             <span
               title={breadCrumb.title}
               className="font-semibold cursor-default"
+              aria-current="page"
             >
               {breadCrumb.title}
             </span>

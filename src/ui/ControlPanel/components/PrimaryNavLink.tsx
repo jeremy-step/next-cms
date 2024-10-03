@@ -25,9 +25,9 @@ export default function PrimaryNavLink({
                 grid gap-1 grid-cols-[3rem_auto] h-[3rem] 
                 bg-slate-300 dark:bg-slate-700 rounded font-semibold text-[.925rem] transition-colors 
                 hover:bg-sky-300 active:!bg-sky-400 hover:text-slate-950 dark:hover:bg-sky-700 dark:active:!bg-sky-600 dark:hover:text-slate-50
-                [&[data-current]]:bg-sky-300 [&[data-current]]:text-slate-950 dark:[&[data-current]]:bg-sky-700 dark:[&[data-current]]:text-slate-50
+                [&[aria-current]]:bg-sky-300 [&[aria-current]]:text-slate-950 dark:[&[aria-current]]:bg-sky-700 dark:[&[aria-current]]:text-slate-50
                 "
-      data-current={pathname === href ? "" : null}
+      aria-current={pathname === href ? "page" : undefined}
       {...rest}
     >
       <span className="grid place-self-center justify-items-center w-1/2 aspect-square">
