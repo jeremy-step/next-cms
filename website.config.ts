@@ -22,7 +22,13 @@ const websiteConfig: WebsiteConfig = {
       controlPanel: {
         prefix: "/control-panel",
         routes: {
-          "dashboard/index": { path: "/dashboard" },
+          "dashboard/index": { path: "/dashboard", title: "Dashboard" },
+          "pages/index": { path: "/pages", title: "Pages" },
+          "pages/edit": {
+            path: "/[pageId]",
+            parent: "pages/index",
+            title: "Edit Page",
+          },
         },
       },
 
