@@ -1,3 +1,109 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "../../../../node_modules/@mdxeditor/editor/dist/style.css";
+
+@layer components {
+  .dark-editor {
+    --accentBase: theme(colors.red.700);
+    --accentBgSubtle: theme(colors.red.700);
+    --accentBg: theme(colors.red.700);
+    --accentBgHover: theme(colors.red.700);
+    --accentBgActive: theme(colors.red.700);
+    --accentLine: theme(colors.red.700);
+    --accentBorder: theme(colors.red.700);
+    --accentBorderHover: theme(colors.red.700);
+    --accentSolid: theme(colors.red.700);
+    --accentSolidHover: theme(colors.red.700);
+    --accentText: theme(colors.red.700);
+    --accentTextContrast: theme(colors.red.700);
+
+    --baseBase: theme(colors.slate.950);
+    --baseBg: theme(colors.slate.900);
+    --baseBgSubtle: theme(colors.slate.700);
+    --baseBgHover: theme(colors.slate.700);
+    --baseBgActive: theme(colors.slate.700);
+    --baseLine: theme(colors.slate.700);
+    --baseBorder: theme(colors.slate.700);
+    --baseBorderHover: theme(colors.slate.500);
+    --baseSolid: theme(colors.slate.700);
+    --baseSolidHover: theme(colors.slate.700);
+    --baseText: theme(colors.slate.100);
+    --baseTextContrast: theme(colors.slate.50);
+
+    --admonitionTipBg: var(--cyan4);
+    --admonitionTipBorder: var(--cyan8);
+
+    --admonitionInfoBg: var(--grass4);
+    --admonitionInfoBorder: var(--grass8);
+
+    --admonitionCautionBg: var(--amber4);
+    --admonitionCautionBorder: var(--amber8);
+
+    --admonitionDangerBg: var(--red4);
+    --admonitionDangerBorder: var(--red8);
+
+    --admonitionNoteBg: var(--mauve-4);
+    --admonitionNoteBorder: var(--mauve-8);
+
+    --basePageBg: theme(colors.slate.950);
+  }
+
+  .light-editor {
+    --accentBase: theme(colors.red.700);
+    --accentBgSubtle: theme(colors.red.700);
+    --accentBg: theme(colors.red.700);
+    --accentBgHover: theme(colors.red.700);
+    --accentBgActive: theme(colors.red.700);
+    --accentLine: theme(colors.red.700);
+    --accentBorder: theme(colors.red.700);
+    --accentBorderHover: theme(colors.red.700);
+    --accentSolid: theme(colors.red.700);
+    --accentSolidHover: theme(colors.red.700);
+    --accentText: theme(colors.red.700);
+    --accentTextContrast: theme(colors.red.700);
+
+    --baseBase: theme(colors.slate.100);
+    --baseBg: theme(colors.slate.200);
+    --baseBgSubtle: theme(colors.slate.300);
+    --baseBgHover: theme(colors.slate.300);
+    --baseBgActive: theme(colors.slate.300);
+    --baseLine: theme(colors.slate.300);
+    --baseBorder: theme(colors.slate.300);
+    --baseBorderHover: theme(colors.slate.500);
+    --baseSolid: theme(colors.slate.300);
+    --baseSolidHover: theme(colors.slate.300);
+    --baseText: theme(colors.slate.900);
+    --baseTextContrast: theme(colors.slate.950);
+
+    --admonitionTipBg: var(--cyan4);
+    --admonitionTipBorder: var(--cyan8);
+
+    --admonitionInfoBg: var(--grass4);
+    --admonitionInfoBorder: var(--grass8);
+
+    --admonitionCautionBg: var(--amber4);
+    --admonitionCautionBorder: var(--amber8);
+
+    --admonitionDangerBg: var(--red4);
+    --admonitionDangerBorder: var(--red8);
+
+    --admonitionNoteBg: var(--mauve-4);
+    --admonitionNoteBorder: var(--mauve-8);
+
+    --basePageBg: theme(colors.slate.50);
+  }
+}
+
+[data-radix-popper-content-wrapper],
+.mdxeditor-popup-container {
+  @apply !z-40;
+}
+
+.mdxeditor-toolbar {
+  @apply mb-2 border border-slate-300 dark:border-slate-700;
+}
+
+/* .mdxeditor-rich-text-editor [contenteditable] + * {
+  @apply invisible;
+} */
