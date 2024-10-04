@@ -30,12 +30,13 @@ export default function Layout({
   const SettingsNavIcon = settingsNav.primaryNavIcon;
 
   const contentCornersClasses = `
-    fixed z-20 w-[calc(100%-22rem)] bg-slate-100 dark:bg-slate-900
+    fixed z-50 w-[calc(100%-22rem)] bg-slate-100 dark:bg-slate-900
     before:pointer-events-none before:absolute before:left-0 before:w-full before:h-4 before:bg-transparent before:shadow-slate-100 dark:before:shadow-slate-900
   `;
 
   return (
     <>
+      <div className="fixed bg-slate-100 dark:bg-slate-900 inset-0 w-full h-full"></div>
       {/* START -- Content rounded corners on scroll */}
       <div
         className={clsx(
@@ -75,21 +76,21 @@ export default function Layout({
           </BasePanel>
         </aside>
 
-        <header className="[grid-area:header] sticky top-3 h-[4.5rem] z-20">
-          <BasePanel className="relative w-full h-full flex justify-between items-center py-2">
+        <header className="[grid-area:header] sticky top-3 h-[4.5rem] z-50">
+          <BasePanel className="relative w-full h-full flex justify-between items-center py-2 px-8">
             <BreadCrumbs />
           </BasePanel>
         </header>
 
         <main
-          className="[grid-area:main] relative z-10 before:sticky before:block before:top-[5.75rem] before:left-0 before:w-full before:h-5 before:bg-slate-200 dark:before:bg-slate-800 before:rounded-t-md
-          after:sticky after:block after:bottom-3 after:left-0 after:w-full after:h-5 after:bg-slate-200 dark:after:bg-slate-800 after:rounded-b-md
+          className="[grid-area:main] relative z-10 before:sticky before:z-50 before:block before:top-[5.75rem] before:left-0 before:w-full before:h-5 before:bg-slate-200 dark:before:bg-slate-800 before:rounded-t-md
+          after:sticky after:z-50 after:block after:bottom-3 after:left-0 after:w-full after:h-5 after:bg-slate-200 dark:after:bg-slate-800 after:rounded-b-md
         "
         >
           <BasePanel className="w-full h-full -my-5">{children}</BasePanel>
         </main>
 
-        <footer className="[grid-area:footer] z-20">
+        <footer className="[grid-area:footer] z-50">
           <BasePanel className="w-full h-full text-xs py-4">Footer</BasePanel>
         </footer>
 
