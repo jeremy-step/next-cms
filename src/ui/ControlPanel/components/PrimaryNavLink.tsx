@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-interface PanelProps extends React.HtmlHTMLAttributes<HTMLAnchorElement> {
+interface PrimaryNavProps extends React.HtmlHTMLAttributes<HTMLAnchorElement> {
   href: string;
   title?: string;
   Icon?: unknown;
@@ -14,7 +14,7 @@ export default function PrimaryNavLink({
   title,
   Icon,
   ...rest
-}: PanelProps) {
+}: PrimaryNavProps) {
   const pathname = usePathname();
 
   return (
