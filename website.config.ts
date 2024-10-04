@@ -44,6 +44,11 @@ const websiteConfig: WebsiteConfig = {
             primaryNav: true,
             primaryNavIcon: BookOpenIcon,
           },
+          "pages/create": {
+            path: "/create",
+            parent: "pages/index",
+            title: "Create Page",
+          },
           "pages/edit": {
             path: "/[pageId]",
             parent: "pages/index",
