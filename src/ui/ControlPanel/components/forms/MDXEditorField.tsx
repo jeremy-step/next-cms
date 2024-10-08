@@ -2,7 +2,7 @@
 
 import { FormState } from "@lib/actions/definitions";
 import { MDXEditorMethods } from "@mdxeditor/editor";
-import { FocusEvent, useId, useRef, useState } from "react";
+import { FocusEvent, useEffect, useId, useRef, useState } from "react";
 import { MDXEditor } from "../MDXEditor";
 
 interface FieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -10,6 +10,8 @@ interface FieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   name: string;
   markdown?: string;
   state: FormState;
+  reset: boolean;
+  setReset: CallableFunction;
 }
 
 export default function MDXEditorField({
@@ -17,6 +19,8 @@ export default function MDXEditorField({
   name,
   markdown = "",
   state,
+  reset,
+  setReset,
   className,
   ...rest
 }: FieldProps) {
@@ -49,30 +53,38 @@ export default function MDXEditorField({
     sel?.addRange(range);
   };
 
+  useEffect(() => {
+    if (reset) {
+      setReset(false);
+    }
+
+    contentRef.current?.setMarkdown(markdown);
+    setContent(markdown);
+  }, [reset, markdown, setReset]);
+
   return (
     <div className={className}>
       <label htmlFor={id} className="mb-2 block text-sm font-medium">
         {label}
       </label>
       <div className="relative mt-2 rounded-md">
-        <div className="relative">
-          <textarea
-            id={id}
-            name={name}
-            value={content}
-            readOnly
-            aria-describedby={`${id}-error`}
-            className="sr-only whitespace-pre"
-            onFocus={handleFocus}
-          />
-          <MDXEditor
-            markdown={markdown}
-            ref={contentRef}
-            onChange={handleChange}
-            autoFocus={{ defaultSelection: "rootEnd", preventScroll: true }}
-            {...rest}
-          />
-        </div>
+        <textarea
+          id={id}
+          name={name}
+          value={content}
+          readOnly
+          aria-describedby={`${id}-error`}
+          className="sr-only whitespace-pre"
+          onFocus={handleFocus}
+        />
+        <MDXEditor
+          markdown={markdown}
+          ref={contentRef}
+          // @ts-expect-error: parameter types don't match
+          onChange={handleChange}
+          autoFocus={{ defaultSelection: "rootEnd", preventScroll: true }}
+          {...rest}
+        />
         <div id={`${id}-error`} aria-live="polite" aria-atomic="true">
           {state?.errors &&
             state.errors[name] &&

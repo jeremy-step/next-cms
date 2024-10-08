@@ -45,8 +45,8 @@ export default function InitializedMDXEditor({
         toolbarPlugin({
           toolbarContents: () => (
             <>
-              <BoldItalicUnderlineToggles />
               <BlockTypeSelect />
+              <BoldItalicUnderlineToggles />
               <ListsToggle />
               <DiffSourceToggleWrapper>
                 <UndoRedo />

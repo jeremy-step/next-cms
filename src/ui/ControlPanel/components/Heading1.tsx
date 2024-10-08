@@ -14,7 +14,7 @@ export default function Heading1({
 }: HeadingProps) {
   return (
     <As
-      className={twMerge(clsx("text-3xl font-semibold", className))}
+      className={twMerge(clsx("text-3xl font-semibold mb-5", className))}
       {...rest}
     >
       {children}

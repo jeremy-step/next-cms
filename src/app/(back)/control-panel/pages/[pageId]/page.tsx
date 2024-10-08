@@ -1,15 +1,29 @@
-import { getLink } from "@lib/utils/router";
+import { fetchPageById } from "@lib/data/ControlPanel/pages";
+import { getRouteMeta } from "@lib/utils/router";
+import FormsWrapper from "@ui/control-panel/components/app/pages/FormsWrapper";
 import { Metadata } from "next";
-import Link from "next/link";
+import { notFound } from "next/navigation";
+
+const currentRoute = getRouteMeta("cp.pages/edit");
 
 export const metadata: Metadata = {
-  title: "Edit Page",
+  title: currentRoute.title,
 };
 
-export default function Page() {
-  return (
-    <div>
-      Edit Page <Link href={getLink("cp.pages/create")}>Create Page</Link>
-    </div>
-  );
+export default async function Page({
+  params: paramsPromise,
+}: {
+  params: Promise<{
+    pageId: string;
+  }>;
+}) {
+  const params = await paramsPromise;
+  const id = params.pageId;
+  const page = await fetchPageById(id);
+
+  if (!page) {
+    notFound();
+  }
+
+  return <FormsWrapper currentRoute={currentRoute} data={page} mode="edit" />;
 }
