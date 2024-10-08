@@ -311,3 +311,15 @@ export const getBreadCrumbs = (
     breadCrumbs
   );
 };
+
+export type RouteMeta = {
+  name: NameParameter;
+} & RouteData;
+
+export const getRouteMeta = (name: NameParameter): RouteMeta => {
+  const _name = name.split(".");
+  const routerModule = getRouterModule(_name[0]);
+  const route = paths[routerModule][_name[1]];
+
+  return { name: name, ...route };
+};
