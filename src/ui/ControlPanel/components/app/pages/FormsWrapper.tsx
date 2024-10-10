@@ -5,11 +5,11 @@ import { isPermalinkUnique } from "@lib/data/ControlPanel/pages";
 import { RouteMeta } from "@lib/utils/router";
 import ContentPanel from "@ui/control-panel/components/ContentPanel";
 import Heading1 from "@ui/control-panel/components/Heading1";
-import MetaDataForm from "@ui/control-panel/components/app/pages/MetaDataForm";
-import PageForm from "@ui/control-panel/components/app/pages/PageForm";
 import { nanoid } from "nanoid";
 import { useCallback, useState } from "react";
 import slugify from "slugify";
+import PageForm from "./PageForm";
+import MetaDataForm from "./MetaDataForm";
 
 interface FormProps extends React.HtmlHTMLAttributes<HTMLFormElement> {
   data?: Page;
