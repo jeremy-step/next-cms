@@ -54,6 +54,21 @@ export async function fetchPageById(id: string): Promise<null | Page> {
   return null;
 }
 
+export async function fetchPageByPermalink(
+  permalink: string
+): Promise<null | Page> {
+  try {
+    return await prisma.page.findFirst({
+      where: { metadata: { permalink: permalink } },
+      include: { metadata: true },
+    });
+  } catch (e) {
+    console.error(e);
+  }
+
+  return null;
+}
+
 export async function isPermalinkUnique(
   permalink: string,
   pageId: string | null

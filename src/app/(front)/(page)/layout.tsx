@@ -1,3 +1,5 @@
+import "@ui/control-panel/assets/globals.css";
+
 import { getConfig } from "@lib/utils/config";
 import type { Metadata } from "next";
 

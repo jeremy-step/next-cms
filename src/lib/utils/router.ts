@@ -254,7 +254,7 @@ export const getLink = (name: NameParameter, params?: ParamsParameter) => {
     }
   }
 
-  return !link.startsWith("/") ? `/${link}` : link;
+  return `/${link.replace(/^\/+/, "")}`;
 };
 
 export const getLinkWithMeta = (
