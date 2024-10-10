@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "vercel-build": "ls ./node_modules/prisma;ls ./node_modules/@prisma; ls ./node_modules/.pnpm; prisma generate && prisma migrate deploy && next build",
-    "postbuild": "",
+    "vercel-build": "ls ./node_modules/prisma; prisma generate && prisma migrate deploy && next build",
+    "postbuild": "ls ./node_modules/prisma; ls ./src/lib/prisma/",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
