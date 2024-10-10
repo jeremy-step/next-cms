@@ -1,23 +1,9 @@
-import { fetchPageByPermalink, fetchPages } from "@lib/data/ControlPanel/pages";
+import { fetchPages } from "@lib/data/ControlPanel/pages";
 import { getLink } from "@lib/utils/router";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import Markdown from "react-markdown";
 
-export default async function Page({
-  params: paramsPromise,
-}: {
-  params: Promise<{
-    permalink: string;
-  }>;
-}) {
-  const params = await paramsPromise;
+export default async function NotFound() {
   const pages = await fetchPages();
-  const page = await fetchPageByPermalink(`/${params.permalink?.[0] ?? ""}`);
-
-  if (!page) {
-    notFound();
-  }
 
   return (
     <div className="p-5">
@@ -42,12 +28,6 @@ export default async function Page({
           </li>
         ))}
       </ul>
-      {page?.content && (
-        <div className=" pt-12 prose">
-          <h2 className="font-bold text-xl">{page?.title}</h2>
-          <Markdown>{page.content}</Markdown>
-        </div>
-      )}
     </div>
   );
 }
