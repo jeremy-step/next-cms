@@ -28,13 +28,53 @@ model Page {
   // authorId  String   @db.Uuid
 }
 
+enum Robots {
+  IndexFollow
+  NoIndexNoFollow
+  IndexNoFollow
+  NoIndexFollow
+}
+
+enum SitemapInclude {
+  Yes
+  No
+}
+
+enum SitemapPrio {
+  P100
+  P90
+  P80
+  P70
+  P60
+  P50
+  P40
+  P30
+  P20
+  P10
+  P0
+}
+
+enum SitemapChangeFreq {
+  Always
+  Hourly
+  Daily
+  Weekly
+  Monthly
+  Yearly
+  Never
+}
+
 model PageMetaData {
-  id          Int     @id @default(autoincrement())
-  title       String  @db.VarChar(255)
-  description String? @db.VarChar(255)
-  permalink   String
-  page        Page    @relation(fields: [pageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  pageId      String  @unique @db.Uuid
+  id                Int               @id @default(autoincrement())
+  title             String            @db.VarChar(255)
+  description       String?           @db.VarChar(255)
+  permalink         String            @unique
+  robots            Robots            @default(IndexFollow)
+  sitemapInclude    SitemapInclude    @default(Yes)
+  sitemapPrio       SitemapPrio       @default(P70)
+  sitemapChangeFreq SitemapChangeFreq @default(Monthly)
+  page              Page              @relation(fields: [pageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  pageId            String            @unique @db.Uuid
 }
 
 // model User {
