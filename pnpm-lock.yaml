@@ -17,6 +17,9 @@ importers:
       '@prisma/client':
         specifier: 5.20.0
         version: 5.20.0(prisma@5.20.0)
+      '@prisma/nextjs-monorepo-workaround-plugin':
+        specifier: ^5.20.0
+        version: 5.20.0
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -514,6 +517,9 @@ packages:
 
   '@prisma/get-platform@5.20.0':
     resolution: {integrity: sha512-8/+CehTZZNzJlvuryRgc77hZCWrUDYd/PmlZ7p2yNXtmf2Una4BWnTbak3us6WVdqoz5wmptk6IhsXdG2v5fmA==}
+
+  '@prisma/nextjs-monorepo-workaround-plugin@5.20.0':
+    resolution: {integrity: sha512-q0Lf7WktcApMRel4xZ6fyOZj8VF2mVRQa7C2QuqVmrutMWA3ZzFtSOADntH36Dz/UUe5ntuQaNrxJITL0r3WNA==}
 
   '@radix-ui/colors@3.0.0':
     resolution: {integrity: sha512-FUOsGBkHrYJwCSEtWRCIfQbZG7q1e6DgxCIOe1SUQzDe/7rXXeA47s8yCn6fuTNQAj1Zq4oTFi9Yjp3wzElcxg==}
@@ -3612,6 +3618,8 @@ snapshots:
   '@prisma/get-platform@5.20.0':
     dependencies:
       '@prisma/debug': 5.20.0
+
+  '@prisma/nextjs-monorepo-workaround-plugin@5.20.0': {}
 
   '@radix-ui/colors@3.0.0': {}
 
