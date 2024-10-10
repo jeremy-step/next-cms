@@ -19,6 +19,8 @@
   "dependencies": {
     "@heroicons/react": "^2.1.5",
     "@mdxeditor/editor": "^3.11.5",
+    "@neondatabase/serverless": "^0.10.1",
+    "@prisma/adapter-neon": "^5.20.0",
     "@prisma/client": "5.20.0",
     "@prisma/nextjs-monorepo-workaround-plugin": "^5.20.0",
     "clsx": "^2.1.1",
