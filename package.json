@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "pnpx prisma generate",
+    "postinstall": "pnpx prisma generate && pnpx prisma migrate deploy",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
