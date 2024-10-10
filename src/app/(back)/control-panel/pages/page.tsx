@@ -10,8 +10,17 @@ export const metadata: Metadata = {
   title: "Pages",
 };
 
-export default async function Page() {
-  const pages = await fetchPages();
+export default async function Page({
+  searchParams: searchParamsPromise,
+}: {
+  searchParams?: Promise<{
+    "order-by"?: string;
+    dir?: string;
+    page?: string;
+  }>;
+}) {
+  const searchParams = await searchParamsPromise;
+  const pages = await fetchPages(searchParams?.["order-by"], searchParams?.dir);
 
   return (
     <div className="grid h-full">

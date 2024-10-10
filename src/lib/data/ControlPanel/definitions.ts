@@ -5,6 +5,16 @@ import {
   SitemapPrio,
 } from "@lib/prisma/db";
 
+export enum PageEnum {
+  id,
+  title,
+  content,
+  createdAt,
+  updatedAt,
+  published,
+  metadata,
+}
+
 export type Page = {
   id: string | null;
   title: string;

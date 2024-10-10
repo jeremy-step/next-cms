@@ -2,12 +2,18 @@
 
 import { getLink } from "@lib/utils/router";
 import { Page } from "@lib/data/ControlPanel/definitions";
-import { PlusIcon } from "@heroicons/react/16/solid";
+import {
+  ArrowLongDownIcon,
+  ArrowLongUpIcon,
+  ArrowsUpDownIcon,
+  PlusIcon,
+} from "@heroicons/react/16/solid";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { deletePage, setPublished } from "@lib/actions/ControlPanel/pages";
 import SwitchBox from "../../SwitchBox";
 import { getDate, getDateLegible } from "@lib/utils/strings";
+import { useSearchParams } from "next/navigation";
 
 interface ListingProps extends React.HtmlHTMLAttributes<HTMLTableElement> {
   pages: Page[];
@@ -35,6 +41,18 @@ export default function PageListing({ pages, ...rest }: ListingProps) {
     input.focus();
   };
 
+  const searchParams = useSearchParams();
+  const orderBy = searchParams.get("order-by");
+  const dir = searchParams.get("dir");
+
+  const getDir = (field: string) => {
+    if (orderBy === field) {
+      return dir === "desc" ? "asc" : undefined;
+    }
+
+    return "desc";
+  };
+
   return (
     <table
       className="border-collapse w-full rounded-md overflow-hidden"
@@ -51,10 +69,112 @@ export default function PageListing({ pages, ...rest }: ListingProps) {
               <PlusIcon />
             </Link>
           </th>
-          <th className="min-w-full">Title</th>
-          <th className="text-center">Published</th>
-          <th>Updated</th>
-          <th>Created</th>
+          <th className="min-w-full">
+            <Link
+              href={getLink("cp.pages/index", {
+                "order-by":
+                  dir === "asc"
+                    ? orderBy === "title"
+                      ? undefined
+                      : "title"
+                    : "title",
+                dir: getDir("title"),
+              })}
+              title="Order by title"
+              className="flex gap-1"
+            >
+              Title{" "}
+              {orderBy === "title" ? (
+                <>
+                  {dir === "asc" ? (
+                    <ArrowLongUpIcon className="w-4" />
+                  ) : (
+                    <ArrowLongDownIcon className="w-4" />
+                  )}
+                </>
+              ) : (
+                <ArrowsUpDownIcon className="w-4" />
+              )}
+            </Link>
+          </th>
+          <th className="text-center">
+            <Link
+              href={getLink("cp.pages/index", {
+                "order-by":
+                  dir === "asc"
+                    ? orderBy === "published"
+                      ? undefined
+                      : "published"
+                    : "published",
+                dir: getDir("published"),
+              })}
+              title="Order by published"
+              className="flex gap-1"
+            >
+              Published{" "}
+              {orderBy === "published" ? (
+                <>
+                  {dir === "asc" ? (
+                    <ArrowLongUpIcon className="w-4" />
+                  ) : (
+                    <ArrowLongDownIcon className="w-4" />
+                  )}
+                </>
+              ) : (
+                <ArrowsUpDownIcon className="w-4" />
+              )}
+            </Link>
+          </th>
+          <th>
+            <Link
+              href={getLink("cp.pages/index", {
+                "order-by":
+                  dir === "asc"
+                    ? orderBy === "updatedAt"
+                      ? undefined
+                      : "updatedAt"
+                    : "updatedAt",
+                dir: getDir("updatedAt"),
+              })}
+              title="Order by updated"
+              className="flex gap-1"
+            >
+              Updated{" "}
+              {orderBy === "updatedAt" ? (
+                <>
+                  {dir === "asc" ? (
+                    <ArrowLongUpIcon className="w-4" />
+                  ) : (
+                    <ArrowLongDownIcon className="w-4" />
+                  )}
+                </>
+              ) : (
+                <ArrowsUpDownIcon className="w-4" />
+              )}
+            </Link>
+          </th>
+          <th>
+            <Link
+              href={getLink("cp.pages/index", {
+                "order-by":
+                  dir === "asc"
+                    ? orderBy === "createdAt"
+                      ? undefined
+                      : "createdAt"
+                    : "createdAt",
+                dir: dir === "asc" ? undefined : "asc",
+              })}
+              title="Order by created"
+              className="flex gap-1"
+            >
+              Created{" "}
+              {dir === "asc" && orderBy === "createdAt" ? (
+                <ArrowLongUpIcon className="w-4" />
+              ) : (
+                <ArrowLongDownIcon className="w-4" />
+              )}
+            </Link>
+          </th>
 
           <th colSpan={2}>Actions</th>
         </tr>
@@ -82,6 +202,7 @@ export default function PageListing({ pages, ...rest }: ListingProps) {
                 defaultChecked={page.published}
                 className="mx-auto"
                 onClick={(e) => handleSetPublished(e, page)}
+                key={`order-${orderBy}-${dir}`}
               />
             </td>
             <td className="!pr-9">

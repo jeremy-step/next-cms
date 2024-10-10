@@ -1,13 +1,38 @@
 "use server";
 
 import { prisma } from "@lib/prisma/prismaClient";
-import type { Page } from "./definitions";
+import { Page, PageEnum } from "./definitions";
+import { Prisma } from "@lib/prisma/db";
 
-export async function fetchPages(): Promise<Page[]> {
+export async function fetchPages(
+  orderBy?: string,
+  dir?: string
+): Promise<Page[]> {
+  const _orderBy = [];
+
+  if ((orderBy as string) in PageEnum && (dir === "asc" || dir === "desc")) {
+    _orderBy.push(
+      orderBy === "updatedAt"
+        ? {
+            [orderBy as string]: {
+              sort: dir === "asc" ? "asc" : "desc",
+              nulls: dir === "asc" ? "first" : "last",
+            },
+          }
+        : { [orderBy as string]: dir === "asc" ? "asc" : "desc" }
+    );
+  }
+
+  if (orderBy !== "createdAt") {
+    _orderBy.push({
+      createdAt: Prisma.SortOrder.desc,
+    });
+  }
+
   try {
     return await prisma.page.findMany({
       include: { metadata: true },
-      orderBy: { createdAt: "desc" },
+      orderBy: _orderBy,
     });
   } catch (e) {
     console.error(e);
