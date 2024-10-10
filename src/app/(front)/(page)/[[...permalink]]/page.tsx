@@ -42,9 +42,9 @@ export default async function Page({
           </li>
         ))}
       </ul>
-      {page?.content && (
+      {page && (
         <div className=" pt-12 prose">
-          <h2 className="font-bold text-xl">{page?.title}</h2>
+          <h2 className="font-bold text-xl">{page.title}</h2>
           <Markdown>{page.content}</Markdown>
         </div>
       )}
