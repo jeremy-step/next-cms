@@ -7,6 +7,12 @@ import { prisma } from "@lib/prisma/prismaClient";
 import { getLink } from "@lib/utils/router";
 import type { PageFormState, PageMetaDataFormState } from "./definitions";
 import slugify from "slugify";
+import {
+  Robots,
+  SitemapChangeFreq,
+  SitemapInclude,
+  SitemapPrio,
+} from "@lib/prisma/db";
 
 // Page
 
@@ -16,9 +22,26 @@ const PageFormSchema = z.object({
   content: z.string(),
   createDate: z.string(),
   updateDate: z.string(),
+  permalink: z.preprocess((val) => {
+    if (typeof val !== "string") {
+      return val;
+    }
+
+    let _val = val.trim().replace(/\/{2,}/g, "/");
+
+    if (!_val.startsWith("/")) {
+      _val = `/${_val}`;
+    }
+
+    return slugify(_val.replace(/\/$/g, ""), {
+      lower: true,
+      trim: true,
+      remove: /[^\w\s\/]+/g,
+    });
+  }, z.string()),
 });
 
-const Page = PageFormSchema.omit({
+const PageCreate = PageFormSchema.omit({
   id: true,
   createDate: true,
   updateDate: true,
@@ -28,11 +51,12 @@ export const createPage = async (
   prevState: PageFormState,
   formData: FormData
 ) => {
-  //await new Promise((resolve) => setTimeout(resolve, 3000));
+  //await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const validatedFields = Page.safeParse({
+  const validatedFields = PageCreate.safeParse({
     title: formData.get("title"),
     content: formData.get("content"),
+    permalink: formData.get("permalink"),
   });
 
   if (!validatedFields.success) {
@@ -42,41 +66,60 @@ export const createPage = async (
     };
   }
 
-  const { title, content } = validatedFields.data;
+  const { title, content, permalink } = validatedFields.data;
 
-  const page = await prisma.page.create({
-    data: {
-      title: title,
-      content: content,
-      updatedAt: null,
-    },
-  });
+  let page;
 
-  await prisma.pageMetaData.create({
-    data: {
-      title: page.title,
-      permalink: `/${slugify(page.title, {
-        lower: true,
-        trim: true,
-        remove: /[^\w\s$*_+~.()'"!\-:@]+/g,
-      })}`,
-      description: "",
-      pageId: page.id,
-    },
-  });
+  try {
+    page = await prisma.$transaction(async (tx) => {
+      const page = await tx.page.create({
+        data: {
+          title: title,
+          content: content,
+          updatedAt: null,
+        },
+      });
 
-  revalidatePath(getLink("cp.pages/index"));
-  redirect(getLink("cp.pages/edit", { pageId: page.id }));
+      await tx.pageMetaData.create({
+        data: {
+          title: page.title,
+          permalink: permalink,
+          description: "",
+          pageId: page.id,
+        },
+      });
+
+      return page;
+    });
+
+    revalidatePath(getLink("cp.pages/index"));
+  } catch (e) {
+    console.error(e);
+
+    return {
+      errors: {},
+      message: "Error while creating Page.",
+    };
+  }
+
+  redirect(getLink("cp.pages/edit", { pageId: page?.id }));
 };
+
+const PageEdit = PageFormSchema.omit({
+  id: true,
+  permalink: true,
+  createDate: true,
+  updateDate: true,
+});
 
 export const editPage = async (
   id: string,
   prevState: PageFormState,
   formData: FormData
 ) => {
-  //await new Promise((resolve) => setTimeout(resolve, 3000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const validatedFields = Page.safeParse({
+  const validatedFields = PageEdit.safeParse({
     title: formData.get("title"),
     content: formData.get("content"),
   });
@@ -90,18 +133,26 @@ export const editPage = async (
 
   const { title, content } = validatedFields.data;
 
-  await prisma.page.update({
-    data: {
-      title: title,
-      content: content,
-    },
-    where: {
-      id: id,
-    },
-  });
+  try {
+    await prisma.page.update({
+      data: {
+        title: title,
+        content: content,
+      },
+      where: {
+        id: id,
+      },
+    });
 
-  revalidatePath(getLink("cp.pages/index"));
-  redirect(getLink("cp.pages/edit", { pageId: id }));
+    revalidatePath(getLink("cp.pages/index"));
+  } catch (e) {
+    console.error(e);
+
+    return {
+      errors: {},
+      message: "Error while editing Page.",
+    };
+  }
 };
 
 // Page Metadata
@@ -121,8 +172,18 @@ const PageMetaDataFormSchema = z.object({
       _val = `/${_val}`;
     }
 
-    return _val.replace(/\/$/g, "");
+    return slugify(_val.replace(/\/$/g, ""), {
+      lower: true,
+      trim: true,
+      remove: /[^\w\s$*_+~.()'"!\-:@\/]+/g,
+    });
   }, z.string()),
+  robots: z.nativeEnum(Robots),
+  sitemapInclude: z.preprocess((val) => {
+    return val === "1" ? SitemapInclude.Yes : SitemapInclude.No;
+  }, z.nativeEnum(SitemapInclude)),
+  sitemapPrio: z.nativeEnum(SitemapPrio).nullable(),
+  sitemapChangeFreq: z.nativeEnum(SitemapChangeFreq).nullable(),
 });
 
 const PageMetaData = PageMetaDataFormSchema.omit({
@@ -134,12 +195,16 @@ export const editPageMetaData = async (
   prevState: PageMetaDataFormState,
   formData: FormData
 ) => {
-  //await new Promise((resolve) => setTimeout(resolve, 3000));
+  //await new Promise((resolve) => setTimeout(resolve, 1000));
 
   const validatedFields = PageMetaData.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
     permalink: formData.get("permalink"),
+    robots: formData.get("robots"),
+    sitemapInclude: formData.get("sitemapInclude"),
+    sitemapPrio: formData.get("sitemapPrio"),
+    sitemapChangeFreq: formData.get("sitemapChangeFreq"),
   });
 
   if (!validatedFields.success) {
@@ -150,27 +215,78 @@ export const editPageMetaData = async (
     };
   }
 
-  const { title, description, permalink } = validatedFields.data;
+  const {
+    title,
+    description,
+    permalink,
+    robots,
+    sitemapInclude,
+    sitemapPrio,
+    sitemapChangeFreq,
+  } = validatedFields.data;
 
-  const { pageId } = await prisma.pageMetaData.update({
-    data: {
-      title: title,
-      description: description,
-      permalink: permalink,
-    },
-    where: {
-      id: id,
-    },
-  });
+  try {
+    const { pageId } = await prisma.pageMetaData.update({
+      data: {
+        title: title,
+        description: description,
+        permalink: permalink,
+        robots: robots,
+        sitemapInclude: sitemapInclude,
+        sitemapPrio: sitemapPrio ?? undefined,
+        sitemapChangeFreq: sitemapChangeFreq ?? undefined,
+      },
+      where: {
+        id: id,
+      },
+    });
 
-  revalidatePath(getLink("cp.pages/edit", { pageId: pageId }));
+    revalidatePath(getLink("cp.pages/edit", { pageId: pageId }));
+  } catch (e) {
+    console.error(e);
 
-  return {};
+    return {
+      errors: {},
+      message: "Error while editing Page Metadata.",
+    };
+  }
 };
 
-export const deletePage = async (id: string) => {
-  await prisma.page.delete({ where: { id: id } });
+export const deletePage = async (id: string, _redirect: boolean) => {
+  try {
+    await prisma.page.delete({ where: { id: id } });
 
-  revalidatePath(getLink("cp.pages/index"));
-  redirect(getLink("cp.pages/index"));
+    revalidatePath(getLink("cp.pages/index"));
+  } catch (e) {
+    console.error(e);
+
+    return {
+      errors: {},
+      message: "Error while deleting Page.",
+    };
+  }
+
+  if (_redirect) {
+    redirect(getLink("cp.pages/index"));
+  }
+};
+
+export const setPublished = async (published: boolean, pageId: string) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  try {
+    await prisma.page.update({
+      data: { published: published },
+      where: { id: pageId },
+    });
+
+    revalidatePath(getLink("cp.pages/index"));
+  } catch (e) {
+    console.error(e);
+
+    return {
+      errors: {},
+      message: "Error while setting Page published status.",
+    };
+  }
 };
