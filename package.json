@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "vercel-build": "ls ./node_modules/prisma; prisma generate && prisma migrate deploy && next build",
-    "postbuild": "ls ./node_modules/prisma; ls ./src/lib/prisma/",
+    "vercel-build": "deploy-prisma && copy-prisma-engine && next build",
+    "deploy-prisma": "prisma generate && prisma migrate deploy",
+    "copy-prisma-engine": "cp ./node_modules/prisma/libquery_engine-rhel-openssl-3.0.x.so.node ./src/lib/prisma/db/;",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
