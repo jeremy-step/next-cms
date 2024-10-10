@@ -12,6 +12,7 @@ interface ControlsProps extends React.HTMLAttributes<HTMLElement> {
   controls?: Array<"primary" | "cancel" | "delete">;
   onDelete?: React.MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>;
   setState: CallableFunction;
+  disabled?: boolean;
 }
 
 export default function ControlButtons({
@@ -19,6 +20,7 @@ export default function ControlButtons({
   label = "",
   setState,
   cancelLink = undefined,
+  disabled = false,
   form,
   className,
   controls = ["primary", "cancel", "delete"],
@@ -37,7 +39,7 @@ export default function ControlButtons({
           <>
             <BaseButton
               mode="success"
-              disabled={formStatus.pending}
+              disabled={formStatus.pending || disabled}
               className="min-w-24"
             >
               {type === "create" ? "Create" : "Edit"} {label}
@@ -61,7 +63,7 @@ export default function ControlButtons({
             title={`Cancel ${
               type === "create" ? "Creating" : "Editing"
             } ${label}`}
-            aria-disabled={formStatus.pending ? true : undefined}
+            aria-disabled={formStatus.pending || disabled ? true : undefined}
             onClick={
               cancelLink === undefined
                 ? () => {
@@ -80,7 +82,7 @@ export default function ControlButtons({
         {type === "edit" && controls.includes("delete") && (
           <BaseButton
             mode="alert"
-            disabled={formStatus.pending}
+            disabled={formStatus.pending || disabled}
             type="button"
             onClick={onDelete}
           >

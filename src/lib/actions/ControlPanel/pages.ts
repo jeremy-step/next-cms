@@ -117,7 +117,7 @@ export const editPage = async (
   prevState: PageFormState,
   formData: FormData
 ) => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  //await new Promise((resolve) => setTimeout(resolve, 1000));
 
   const validatedFields = PageEdit.safeParse({
     title: formData.get("title"),
@@ -272,7 +272,7 @@ export const deletePage = async (id: string, _redirect: boolean) => {
 };
 
 export const setPublished = async (published: boolean, pageId: string) => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  //await new Promise((resolve) => setTimeout(resolve, 1000));
 
   try {
     await prisma.page.update({
