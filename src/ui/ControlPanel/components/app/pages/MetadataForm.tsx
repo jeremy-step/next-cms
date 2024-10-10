@@ -4,22 +4,35 @@ import { editPageMetaData } from "@lib/actions/ControlPanel/pages";
 import InputField from "../../forms/InputField";
 import ControlButtons from "../../forms/ControlButtons";
 import TextareaField from "../../forms/TextareaField";
-import slugify from "slugify";
 import { PageMetaDataFormState } from "@lib/actions/ControlPanel/definitions";
 import { useEffect, useRef, useState } from "react";
-import { getLink } from "@lib/utils/router";
 import { PageMetaData } from "@lib/data/ControlPanel/definitions";
+import SwitchBoxField from "../../forms/SwitchBoxField";
+import { SitemapChangeFreq, SitemapInclude, SitemapPrio } from "@lib/prisma/db";
+import SelectField from "../../forms/SelectField";
+import Heading3 from "../../Heading3";
+import {
+  getRobots,
+  getSitemapChangeFreq,
+  getSitemapPrio,
+} from "@lib/utils/metadata";
 
 interface FormProps extends React.HtmlHTMLAttributes<HTMLFormElement> {
   data?: PageMetaData;
-  pageMetaData: string;
+  pageTitle: string;
   mode?: "create" | "edit";
+  permalink: string;
+  setPermalink: CallableFunction;
+  formatPermalink: CallableFunction;
 }
 
 export default function MetaDataForm({
   data = null,
-  pageMetaData,
+  pageTitle,
   mode = "create",
+  permalink,
+  setPermalink,
+  formatPermalink,
   ...rest
 }: FormProps) {
   const action = editPageMetaData.bind(null, (data?.id ?? NaN) as number);
@@ -28,27 +41,31 @@ export default function MetaDataForm({
 
   const form = useRef<HTMLFormElement>(null);
 
-  const [permalink, setPermalink] = useState("");
-
   useEffect(() => {
-    setPermalink(
-      `/${slugify(pageMetaData, {
-        lower: true,
-        trim: true,
-        remove: /[^\w\s$*_+~.()'"!\-:@]+/g,
-      })}`
-    );
-  }, [pageMetaData]);
+    const createPermalink = async () => {
+      const permalink = await formatPermalink(pageTitle, false);
+
+      setPermalink(permalink);
+    };
+
+    createPermalink();
+  }, [pageTitle, formatPermalink, setPermalink]);
 
   const handleSubmit = async (formData: FormData) => {
     const result = await action(initialState, formData);
 
-    setState(result);
-
-    if (!result.errors) {
-      form.current?.reset();
-    }
+    setState(result ?? {});
   };
+
+  const handleFormatPermalink = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    e.target.value = await formatPermalink(e.target.value, true);
+  };
+
+  const [sitemapInclude, setSitemapInclude] = useState(
+    data?.sitemapInclude === SitemapInclude.Yes
+  );
 
   return (
     <form
@@ -67,7 +84,7 @@ export default function MetaDataForm({
         name="title"
         label="Title"
         state={state}
-        defaultValue={mode === "create" ? pageMetaData : data?.title}
+        defaultValue={mode === "create" ? pageTitle : data?.title}
         disabled={!data}
       />
       <InputField
@@ -76,6 +93,7 @@ export default function MetaDataForm({
         state={state}
         defaultValue={mode === "create" ? permalink : data?.permalink}
         disabled={!data}
+        onBlur={handleFormatPermalink}
       />
       <TextareaField
         name="description"
@@ -84,7 +102,46 @@ export default function MetaDataForm({
         defaultValue={data?.description ?? ""}
         disabled={!data}
       />
-      Index, Sitemap settings
+      <Heading3 className="mb-0">Indexing</Heading3>
+      <SelectField
+        name="robots"
+        label="Robots"
+        state={state}
+        disabled={!data}
+        options={getRobots()}
+        defaultValue={data?.robots}
+      />
+      <SwitchBoxField
+        name="sitemapInclude"
+        label="Include in sitemap"
+        title="Sitemap"
+        state={state}
+        defaultChecked={
+          mode === "create" ? true : data?.sitemapInclude === SitemapInclude.Yes
+        }
+        disabled={!data}
+        onChange={(e) => setSitemapInclude(e.target.checked)}
+      />
+      <SelectField
+        name="sitemapPrio"
+        label="Priority"
+        state={state}
+        disabled={!data || !sitemapInclude}
+        options={getSitemapPrio()}
+        defaultValue={mode === "create" ? SitemapPrio.P70 : data?.sitemapPrio}
+      />
+      <SelectField
+        name="sitemapChangeFreq"
+        label="Change Frequency"
+        state={state}
+        disabled={!data || !sitemapInclude}
+        options={getSitemapChangeFreq()}
+        defaultValue={
+          mode === "create"
+            ? SitemapChangeFreq.Monthly
+            : data?.sitemapChangeFreq
+        }
+      />
       {mode === "edit" && (
         <ControlButtons
           form={form}

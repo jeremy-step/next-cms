@@ -4,6 +4,7 @@ import {
   createPage,
   deletePage,
   editPage,
+  setPublished,
 } from "@lib/actions/ControlPanel/pages";
 import InputField from "../../forms/InputField";
 import MDXEditorField from "../../forms/MDXEditorField";
@@ -12,11 +13,14 @@ import { getLink } from "@lib/utils/router";
 import { PageFormState } from "@lib/actions/ControlPanel/definitions";
 import { useRef, useState } from "react";
 import { Page } from "@lib/data/ControlPanel/definitions";
+import SwitchBox from "../../SwitchBox";
+import { getDate, getDateLegible } from "@lib/utils/strings";
 
 interface FormProps extends React.HtmlHTMLAttributes<HTMLFormElement> {
   data?: Page;
   mode?: "create" | "edit";
-  setPageMetaData: CallableFunction;
+  setPageTitle: CallableFunction;
+  permalink: string;
 }
 
 export default function PageForm({
@@ -28,7 +32,8 @@ export default function PageForm({
     metadata: null,
   },
   mode = "create",
-  setPageMetaData,
+  setPageTitle,
+  permalink,
   ...rest
 }: FormProps) {
   const action =
@@ -36,8 +41,8 @@ export default function PageForm({
   const initialState: PageFormState = { message: null, errors: {} };
   const [state, setState] = useState(initialState);
 
-  const handleSetPageMetaData = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPageMetaData(e.target.value);
+  const handlesetPageTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPageTitle(e.target.value);
   };
 
   const form = useRef<HTMLFormElement>(null);
@@ -47,51 +52,114 @@ export default function PageForm({
     const result = await action(initialState, formData);
 
     setState(result ?? {});
-
-    if (!result?.errors) {
-      form.current?.reset();
-    }
   };
 
   const handleDelete = (id: string) => {
-    return deletePage(id);
+    return deletePage(id, true);
+  };
+
+  const handleSetPublished = async (
+    e: React.MouseEvent<HTMLInputElement>,
+    page: Page
+  ) => {
+    if (mode === "create") {
+      return;
+    }
+
+    const input = e.target as HTMLInputElement;
+
+    input.checked = !input.checked;
+    input.disabled = true;
+
+    await setPublished(!page.published, page.id as string);
+
+    input.disabled = false;
+    input.checked = !input.checked;
+
+    input.focus();
   };
 
   return (
-    <form
-      {...rest}
-      className="grid gap-5"
-      action={handleSubmit}
-      noValidate
-      ref={form}
-      onReset={() => setReset(true)}
-    >
-      <InputField
-        name="title"
-        label="Title"
-        state={state}
-        defaultValue={data.title}
-        onChange={mode === "create" ? handleSetPageMetaData : undefined}
-        required
-      />
+    <>
+      {state.message && <p className="mb-5">{state.message}</p>}
 
-      <MDXEditorField
-        name="content"
-        label="Content"
-        state={state}
-        markdown={data.content ?? ""}
-        reset={reset}
-        setReset={setReset}
-      />
+      <div className="flex gap-2 items-center justify-between text-sm mb-5">
+        <div className="flex gap-2 items-center">
+          <SwitchBox
+            label=""
+            onClick={(e) => handleSetPublished(e, data)}
+            defaultChecked={data?.published}
+            disabled={mode === "create"}
+          />
+          <span className="font-semibold">Published</span>
+        </div>
+        <div className="flex gap-5">
+          {mode === "edit" && (
+            <>
+              <div className="flex gap-2">
+                <span className="font-semibold">Created: </span>{" "}
+                <time dateTime={getDate(data?.createdAt as Date)}>
+                  {getDateLegible(data?.createdAt as Date)}
+                </time>
+              </div>
+              <div className="flex gap-2">
+                <span className="font-semibold">Updated: </span>{" "}
+                {data?.updatedAt ? (
+                  <time dateTime={getDate(data?.updatedAt as Date)}>
+                    {getDateLegible(data?.updatedAt as Date)}
+                  </time>
+                ) : (
+                  <span>Never</span>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
-      <ControlButtons
-        form={form}
-        type={mode}
-        label="Page"
-        setState={setState}
-        cancelLink={mode === "create" ? getLink("cp.pages/index") : undefined}
-        onDelete={() => handleDelete(data.id as string)}
-      />
-    </form>
+      <form
+        {...rest}
+        className="grid gap-5"
+        action={handleSubmit}
+        noValidate
+        ref={form}
+        onReset={() => setReset(true)}
+      >
+        {mode === "create" && (
+          <input type="hidden" name="permalink" value={permalink} readOnly />
+        )}
+
+        <InputField
+          name="title"
+          label="Title"
+          state={state}
+          defaultValue={data.title}
+          onBlur={mode === "create" ? handlesetPageTitle : undefined}
+          required
+        />
+
+        <MDXEditorField
+          name="content"
+          label="Content"
+          state={state}
+          markdown={data.content ?? ""}
+          reset={reset}
+          setReset={setReset}
+        />
+
+        <ControlButtons
+          form={form}
+          type={mode}
+          label="Page"
+          setState={setState}
+          cancelLink={mode === "create" ? getLink("cp.pages/index") : undefined}
+          onDelete={() => {
+            if (confirm(`Delete "${data.title}"?`)) {
+              handleDelete(data.id as string);
+            }
+          }}
+        />
+      </form>
+    </>
   );
 }

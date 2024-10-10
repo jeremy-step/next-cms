@@ -2,38 +2,44 @@
 
 import { FormState } from "@lib/actions/definitions";
 import { useId } from "react";
+import SwitchBox from "../SwitchBox";
 
 interface FieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  title?: string;
   label: string;
   name: string;
-  type?: string;
   state: FormState;
+  ref?: React.RefObject<HTMLInputElement>;
 }
 
-export default function InputField({
+export default function SwitchBoxField({
+  title = undefined,
   label,
   name,
-  type = "text",
   state,
   className,
+  ref = undefined,
   ...rest
 }: FieldProps) {
   const id = useId();
 
   return (
     <div className={className}>
-      <label htmlFor={id} className="mb-2 block text-sm font-medium">
-        {label}
-      </label>
-      <div className="relative mt-2 rounded-md">
-        <input
-          id={id}
-          name={name}
-          type={type}
-          aria-describedby={`${id}-error`}
-          className="block w-full py-2 rounded-md border bg-slate-100 !border-slate-300 dark:bg-slate-900 dark:!border-slate-700 !ring-0 outline-2 focus:outline-offset-0 focus:outline-sky-500 placeholder:text-gray-500 disabled:text-gray-500"
-          {...rest}
-        />
+      {title && <div className="mb-2 block text-sm font-medium">{title}</div>}
+      <div className="relative rounded-md">
+        <div className="flex gap-2 items-center">
+          <SwitchBox
+            name={name}
+            label={label}
+            ref={ref}
+            defaultValue="1"
+            {...rest}
+          />
+          <div className="text-sm" aria-hidden>
+            {label}
+          </div>
+        </div>
+
         <div id={`${id}-error`} aria-live="polite" aria-atomic="true">
           {state?.errors &&
             state.errors[name] &&

@@ -29,9 +29,12 @@ export default function MDXEditorField({
   const contentRef = useRef<MDXEditorMethods>(null);
 
   const [content, setContent] = useState(markdown);
+  const [mounted, setMounted] = useState(false);
 
   const handleChange = (markdown: string) => {
-    setContent(markdown);
+    if (mounted) {
+      setContent(markdown);
+    }
   };
 
   const handleFocus = (e: FocusEvent<HTMLTextAreaElement, Element>) => {
@@ -54,6 +57,8 @@ export default function MDXEditorField({
   };
 
   useEffect(() => {
+    setMounted(true);
+
     if (reset) {
       setReset(false);
     }

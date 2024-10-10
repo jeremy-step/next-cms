@@ -3,18 +3,18 @@
 import { FormState } from "@lib/actions/definitions";
 import { useId } from "react";
 
-interface FieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface FieldProps extends React.InputHTMLAttributes<HTMLSelectElement> {
   label: string;
   name: string;
-  type?: string;
   state: FormState;
+  options: { [key: string]: string };
 }
 
-export default function InputField({
+export default function SelectField({
   label,
   name,
-  type = "text",
   state,
+  options,
   className,
   ...rest
 }: FieldProps) {
@@ -26,14 +26,19 @@ export default function InputField({
         {label}
       </label>
       <div className="relative mt-2 rounded-md">
-        <input
+        <select
           id={id}
           name={name}
-          type={type}
           aria-describedby={`${id}-error`}
           className="block w-full py-2 rounded-md border bg-slate-100 !border-slate-300 dark:bg-slate-900 dark:!border-slate-700 !ring-0 outline-2 focus:outline-offset-0 focus:outline-sky-500 placeholder:text-gray-500 disabled:text-gray-500"
           {...rest}
-        />
+        >
+          {Object.entries(options).map((option, index) => (
+            <option key={index} value={option[0]}>
+              {option[1]}
+            </option>
+          ))}
+        </select>
         <div id={`${id}-error`} aria-live="polite" aria-atomic="true">
           {state?.errors &&
             state.errors[name] &&

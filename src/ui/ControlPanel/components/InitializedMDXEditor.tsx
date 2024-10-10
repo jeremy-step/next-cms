@@ -29,7 +29,7 @@ export default function InitializedMDXEditor({
   return (
     <MDXEditor
       className="light-editor dark:dark-editor"
-      contentEditableClassName="mdxeditor-focus form-textarea prose dark:prose-invert max-w-none min-h-72 p-5 rounded-md border bg-slate-100 !border-slate-300 dark:bg-slate-900 dark:!border-slate-700 !ring-0 outline-2 focus:outline-sky-500 focus:outline-offset-0 [&_ul]:list-[square] [&_ul_ul]:list-disc [&_ul_ul_ul]:list-[circle] [&_ul>li[role='checkbox']]:!ps-6 before:[&_ul>li[role='checkbox']]:!top-1/2 before:[&_ul>li[role='checkbox']]:!-translate-y-1/2 after:[&_ul>li[role='checkbox']]:!top-1/2 after:[&_ul>li[role='checkbox']]:!-translate-y-1/2 after:[&_ul>li[role='checkbox']]:!rotate-45 [&[contenteditable]+*]:!bg-transparent"
+      contentEditableClassName="mdxeditor-focus form-textarea prose dark:prose-invert max-w-none min-h-72 py-4 px-3 rounded-md border bg-slate-100 !border-slate-300 dark:bg-slate-900 dark:!border-slate-700 !ring-0 outline-2 focus:outline-sky-500 focus:outline-offset-0 [&_ul]:list-[square] [&_ul_ul]:list-disc [&_ul_ul_ul]:list-[circle] [&_ul>li[role='checkbox']]:!ps-6 before:[&_ul>li[role='checkbox']]:!top-1/2 before:[&_ul>li[role='checkbox']]:!-translate-y-1/2 after:[&_ul>li[role='checkbox']]:!top-1/2 after:[&_ul>li[role='checkbox']]:!-translate-y-1/2 after:[&_ul>li[role='checkbox']]:!rotate-45 [&[contenteditable]+*]:!bg-transparent"
       plugins={[
         headingsPlugin(),
         listsPlugin(),
