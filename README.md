@@ -1,4 +1,6 @@
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/cima-alfa/next-cms)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/jeremy-step/next-cms)
+
+# Next.js practice project
 
 ## Getting Started
 
